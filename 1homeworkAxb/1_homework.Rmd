@@ -197,7 +197,7 @@ Forward selection.
 Using the $\mathbb{X}$ and $Y$ generated in the previous problem, use forward selection and AIC to estimate $b$.
  
 ```{r}
-if(!require(leaps)){install.packages('leaps');require(leaps)}
+if(!require(leaps)){install.packages('leaps',repos='http://cran.us.r-project.org');require(leaps)}
 ```
 
 
