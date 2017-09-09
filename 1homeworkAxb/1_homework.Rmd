@@ -1,5 +1,5 @@
 ---
-title: "Homework 1"
+title: "Homework 1 Tianqi Ma-47248621"
 subtitle: 'STAT6306; Due: 09/05/2017'
 output: pdf_document
 ---
@@ -27,18 +27,36 @@ Hard coding  (that is, write $(A[1,1]+ A[2,1] + ...)/4, ...$  )
 
 ```{r}
 #SOLUTION
+cm1 = (A[1,1]+A[2,1]+A[3,1]+A[4,1])/4
+cm2 = (A[1,2]+A[2,2]+A[3,2]+A[4,2])/4
+cm3 = (A[1,3]+A[2,3]+A[3,3]+A[4,3])/4
+sprintf ("mean of column1 = %s" , cm1)
+sprintf ("mean of column2 = %s" , cm2)
+sprintf ("mean of column3 = %s" , cm3)
 ```
 
 ### Part b
 For loop(s)
 ```{r}
 #SOLUTION
+for (ci in 1:3){
+  ct = 0
+  for (ri in 1:4){
+    ct = ct+A[ri,ci]
+  }
+  cm=ct/4
+  print (paste("mean of column",ci, " = " ,cm))
+  # I dont know why sprintf doesnt work
+}
 ```
 
 ### Part c
 The apply (or related) function 
 ```{r}
 #SOLUTION
+print  (mean(A[,1]))
+print  (mean(A[,2]))
+print  (mean(A[,3]))
 ```
 
 # Problem 2
@@ -51,7 +69,7 @@ Many statistical methods can be computed/analyzed using the SVD\footnote{For thi
 
 ```{r}
 set.seed(10)
-A = matrix(rnorm(24),nrow=6,ncol=4)
+A = matrix(rnorm(24), nrow=6, ncol=4)
 A[,1] = 1
 ```
 
@@ -75,6 +93,11 @@ Suppose we wish to solve for $\hat{x} = arg\min_x ||Ax - b||_2^2 = (A^{\top}A)^{
 
 ```{r}
 #SOLUTION
+b = matrix(1:6)
+svd= svd(A)
+x_hat = svd$v%*%solve(diag(svd$d))%*%t(svd$u)%*%b
+ss = solve(t(A)%*%A)%*%t(A)%*%b
+x_hat
 ```
 
 ### Part b
@@ -84,6 +107,8 @@ Suppose instead we have observations under the model $Y = \mathbb{X}\beta +\epsi
 How does the produced coefficient vector $\hat{\beta}$ compare the $\hat{x}$?
 ```{r}
 #SOLUTION
+lm(b~A -1)
+# There are the same
 ```
 
 # Problem 3
@@ -92,6 +117,7 @@ Now, let's look at a new $A$
 set.seed(100)
 A = matrix(rnorm(4*3),ncol=4,nrow=3)
 A[,1] = 1
+
 ```
 and $b = (1,2,3)^{\top}$. This is an example of an \emph{underdetermined} system.  
 	
@@ -102,12 +128,25 @@ What do(es) the corresponding $\hat{x}$ look like using the SVD? What do(es) the
 
 ```{r}
 #SOLUTION
+b = matrix(1:3)
+svd= svd(A)
+xhat_svd = svd$v%*%solve(diag(svd$d))%*%t(svd$u)%*%b
+ss = solve(t(A)%*%A,tol = 1e-20)%*%t(A)%*%b
+  xhat_svd
+b_hat = matrix(lm(b~A -1)[[1]])
+b_hat
+# there are not same because ncol>nrow, which means p>n
 ```
 
 ### Part b
 What do(es) the corresponding $A\hat{x}$ look like using the SVD? What do(es) the $\hat{Y} = \mathbb{X}\hat\beta$ look like using predict?
 ```{r}
 #SOLUTION
+ax = A%*%xhat_svd
+ax
+b_hat[4] = 0 #matrix time doesnt deal with NA
+y_hat = A%*%b_hat
+y_hat
 ```
 NOTE: it is worth considering why the two objects have different formatting.
 
@@ -116,7 +155,7 @@ NOTE: it is worth considering why the two objects have different formatting.
 Though this  is just one simulated example and not a proof, your findings generalize to all situations when $p > n$. Summarize in words what these findings are.
 
 SOLUTION: 
-
+To solve the equation:$\hat{x} = arg\min_x ||Ax - b||_2^2, when p>n, there are infinte b solution could make ||Ax - b||_2^2 = 0
 
 # Problem 4
 
@@ -150,6 +189,7 @@ Report the first 5 entries in $\hat\beta$ (that is, hatBeta in the above code) u
 
 ```{r}
 #SOLUTION
+hatBeta[1:5]
 ```
 
 ### Part b
@@ -205,6 +245,11 @@ if(!require(leaps)){install.packages('leaps',repos='http://cran.us.r-project.org
 Save the $\mathbb{X}$ generated in the previous problem to a .csv file.  Using forward selection and AIC, estimate $b$ without having $\mathbb{X}$ stored in memory. Verify that your answer matches (a) 
 ```{r}
 #Solution 
+lm = lm(Y~X-1)
+out.aic = stepAIC(lm, direction = "forward", intercept=False)
+hatBeta[1:5]
+coef(out.aic)[1:5]
+#exactlly the same
 ```
 
 # Problem 6 (optional)
@@ -233,4 +278,3 @@ R(\hat{f}_1) = \mathbb{E}\ell(\hat{f}_1(X),Y) & = \ldots \\
 \begin{align*}
 R(\hat{f}_2) = \mathbb{E}\ell(\hat{f}_2(X),Y) & = \ldots \\
 \end{align*}
-
